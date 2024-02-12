@@ -5,15 +5,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 require("express-async-errors");
 var cors = require("cors");
-var usersRouter = require("./routes/users");
-var authRouter = require("./routes/auth");
-var adminRouter = require("./routes/admin")
-const {
-    tokenExtractor,
-    tokenValidator,
-    errorHandler,
-    adminValidator
-} = require("./utils/middleware");
+const authRouter = require("./controllers/authController");
 
 var app = express();
 
@@ -29,18 +21,8 @@ app.use(cors());
 
 app.use("/auth", authRouter);
 
-app.use(tokenExtractor);
-app.use(tokenValidator);
-
-app.use("/user", usersRouter);
-
-app.use(adminValidator);
-app.use("/admin", adminRouter);
-
 app.use(function (req, res, next) {
     next(createError(404));
 });
-
-app.use(errorHandler);
 
 module.exports = app;

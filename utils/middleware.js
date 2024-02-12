@@ -1,43 +1,55 @@
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
+const { Person } = require("../models");
 const { SECRET } = require("./config");
-const jwt = require("jsonwebtoken");
 
-const errorHandler = (error, req, res, next) => {
-    res.locals.message = error.message;
-    res.locals.error = req.app.get("env") === "development" ? error : {};
+passport.use(
+    new LocalStrategy(
+        {
+            usernameField: "email",
+            passwordField: "password",
+        },
+        async (email, password, done) => {
+            try {
+                const user = await Person.findOne({ where: { email } });
 
-    res.status(error.status || 500).render("error");
-    next(error);
+                // Check if user exists and the password is correct
+                if (!user || !user.comparePassword(password)) {
+                    return done(null, false);
+                }
+
+                // If user found and password is correct, return the user
+                return done(null, user);
+            } catch (error) {
+                return done(error, false);
+            }
+        }
+    )
+);
+
+// JWT Strategy
+const jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: SECRET,
 };
 
-const tokenExtractor = (request, response, next) => {
-    const authorization = request.get("authorization");
+passport.use(
+    new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
+        try {
+            // Find the user in the database
+            const user = await Person.findByPk(jwtPayload.sub);
 
-    if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
-        request["token"] = authorization.substring(7);
-    }
-    next();
-};
+            if (user) {
+                return done(null, user);
+            } else {
+                // If user not found, authentication fails
+                return done(null, false);
+            }
+        } catch (error) {
+            return done(error, false);
+        }
+    })
+);
 
-const tokenValidator = (request, response, next) => {
-    const token = request.token;
-    if (!token) {
-        return response.status(401).json({ error: "token missing" });
-    }
-
-    const decodedToken = jwt.verify(token, SECRET);
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: "invalid token" });
-    }
-    next();
-};
-
-const adminValidator = (request, response, next) => {
-    const token = request.token;
-    const decodedToken = jwt.verify(token, SECRET);
-    if (!decodedToken.isAdmin) {
-        return response.status(404).json({ error: "user not an admin" });
-    }
-    next();
-};
-
-module.exports = { errorHandler, tokenExtractor, tokenValidator, adminValidator };
+module.exports = passport;

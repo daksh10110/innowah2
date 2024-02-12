@@ -1,15 +1,19 @@
 const { Model, DataTypes } = require("sequelize");
 const { sequelize } = require("../utils/db");
-const { ulid } = require("ulid");
+const bcrypt = require("bcrypt");
 
-class Person extends Model {}
+class Person extends Model {
+    comparePassword(password) {
+        return bcrypt.compare(password, this.password);
+    }
+}
 
 Person.init(
     {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,
-            defaultValue: ulid,
+            defaultValue: DataTypes.UUIDV4,
         },
         name: {
             type: DataTypes.STRING,
@@ -31,6 +35,10 @@ Person.init(
         },
         password: {
             type: DataTypes.STRING,
+            allowNull: false,
+        },
+        type: {
+            type: DataTypes.ENUM("investor", "investee"),
             allowNull: false,
         },
     },
