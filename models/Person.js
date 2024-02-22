@@ -41,6 +41,10 @@ Person.init(
             type: DataTypes.ENUM("investor", "investee"),
             allowNull: false,
         },
+        fcmID: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     },
     {
         sequelize,
@@ -49,6 +53,12 @@ Person.init(
         modelName: "Person",
     },
 );
+
+Person.prototype.comparePassword = async function (candidatePassword) {
+    const res = await bcrypt.compare(candidatePassword, this.password);
+    return res;
+};
+
 
 // Synchronize the model with the database (Creates the table if it doesn't exist)
 (async () => {

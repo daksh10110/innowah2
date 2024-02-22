@@ -6,6 +6,7 @@ var logger = require("morgan");
 require("express-async-errors");
 var cors = require("cors");
 const authRouter = require("./controllers/authController");
+const chatController = require("./controllers/chatController");
 
 var app = express();
 
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
 app.use("/auth", authRouter);
+app.use("/chats", chatController);
 
 app.use(function (req, res, next) {
     next(createError(404));

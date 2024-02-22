@@ -4,6 +4,7 @@ const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
 const { Person } = require("../models");
 const { SECRET } = require("./config");
 
+// Local Strategy for username/password authentication
 passport.use(
     new LocalStrategy(
         {
@@ -14,8 +15,11 @@ passport.use(
             try {
                 const user = await Person.findOne({ where: { email } });
 
+                console.log(user);
+                const passwordSame = await user.comparePassword(password);
+
                 // Check if user exists and the password is correct
-                if (!user || !user.comparePassword(password)) {
+                if (!user || !passwordSame) {
                     return done(null, false);
                 }
 
@@ -28,7 +32,7 @@ passport.use(
     )
 );
 
-// JWT Strategy
+// JWT Strategy for token authentication
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: SECRET,
