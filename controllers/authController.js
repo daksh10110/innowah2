@@ -10,7 +10,7 @@ const router = express.Router();
 // Signup route
 router.post("/signup", async (req, res) => {
     try {
-        const { name, email, password, type, pan, phoneNumber } = req.body;
+        const { name, email, password, type, pan, phoneNumber, fcmID } = req.body;
 
         // Check if the provided type is valid
         if (!["investor", "investee"].includes(type)) {
@@ -20,7 +20,7 @@ router.post("/signup", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new person
-        const newPerson = await Person.create({ name, email, password: hashedPassword, type, pan, phoneNumber });
+        const newPerson = await Person.create({ name, email, password: hashedPassword, type, pan, phoneNumber, fcmID });
 
         return res.json({ person: newPerson });
     } catch (error) {

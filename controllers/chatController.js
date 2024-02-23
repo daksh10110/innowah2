@@ -1,6 +1,14 @@
-const { Person, Chat, sequelize } = require("../models");
+const { Person, Chat } = require("../models");
 const { Op } = require("sequelize");
 
+const admin = require("firebase-admin");
+const serviceAccount = require("../innowah-f271c-firebase-adminsdk-jam67-e348db5bd9.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+  
+  
 const express = require("express");
 const router = express.Router();
 
@@ -85,6 +93,21 @@ router.post("/send", async (req, res) => {
         }
 
         const chat = await Chat.create({ senderId, receiverId, message });
+
+        const payload = {
+            notification: {
+                title: "New Message",
+                body: message,
+            },
+        };
+
+        admin.messaging().sendToDevice("eyc_RcymSN6Dvi-C-XVQVY:APA91bF8tVJmEEHw62vguxjQx0_qlemQH_HhdmgYRnLvagVoqO7TtidGkQez_Dh69ZiZGfxOrAKEtsGOEp_J0YHpzwAZcoIPRz72rlJEMQtSKmGILU2wM_YorYeR_qomE3_D7T-XConz", payload)
+            .then((response) => {
+                console.log("Successfully sent message:", response);
+            })
+            .catch((error) => {
+                console.error("Error sending message:", error);
+            });
 
         return res.json({ sender, receiver, chat });
     } catch (error) {
