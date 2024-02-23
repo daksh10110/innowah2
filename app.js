@@ -7,6 +7,8 @@ require("express-async-errors");
 var cors = require("cors");
 const authRouter = require("./controllers/authController");
 const chatController = require("./controllers/chatController");
+const investmentController = require("./controllers/investmentController");
+const getController = require("./controllers/getController");
 
 var app = express();
 
@@ -22,9 +24,11 @@ app.use(cors());
 
 app.use("/auth", authRouter);
 app.use("/chats", chatController);
+app.use("/investment", investmentController);
+app.use("/", getController);
 
 app.use(function (req, res, next) {
-    next(createError(404));
+  next(createError(404));
 });
 
 module.exports = app;
