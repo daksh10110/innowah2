@@ -36,6 +36,12 @@ router.post(
           },
         });
 
+        if (amount < investment.minimumInvestment) {
+          return res
+            .status(400)
+            .json({ message: "Amount is below minimum investment" });
+        }
+
         if (existingRelationship) {
           // If an existing relationship is found, add the new investment amount to the existing amount
           existingRelationship.investmentAmount += amount;
@@ -91,8 +97,9 @@ router.post(
         location,
       } = req.body;
       const investeeId = req.user.id; // Extract investor ID from authenticated use
+      console.log("SKIBIDI", req.user);
 
-      const investee = await Person.findByPk(investeeId);
+      const investee = req.user;
 
       if (investee.type === "investor") {
         return res.status(404).json({ message: "Wrong Type of User" });
@@ -115,7 +122,7 @@ router.post(
         listingType: listingType,
         description: description,
         imageURL: imageURL,
-        lastDateToInvest: new Date(),
+        lastDateToInvest: new Date(lastDateToInvest),
       });
 
       return res.json({
