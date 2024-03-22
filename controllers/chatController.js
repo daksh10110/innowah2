@@ -84,6 +84,19 @@ router.get("/:personId/chats/:otherPersonId", async (req, res) => {
 router.post("/send", async (req, res) => {
     const { senderId, receiverId, message } = req.body;
 
+    let senderUser = await Person.findByPk(senderId, {
+        attributes: ["name"],
+    });
+
+    let receiverUser = await Person.findByPk(receiverId, {
+        attributes: ["fcmID"],
+    });
+
+    senderUser = senderUser.toJSON();
+    receiverUser = receiverUser.toJSON();
+
+    console.log("SEND", senderUser, receiverUser);
+
     try {
         const sender = await Person.findByPk(senderId);
         const receiver = await Person.findByPk(receiverId);
@@ -96,12 +109,12 @@ router.post("/send", async (req, res) => {
 
         const payload = {
             notification: {
-                title: "New Message",
+                title: `Message from ${senderUser.name}`,
                 body: message,
             },
         };
 
-        admin.messaging().sendToDevice("eyc_RcymSN6Dvi-C-XVQVY:APA91bF8tVJmEEHw62vguxjQx0_qlemQH_HhdmgYRnLvagVoqO7TtidGkQez_Dh69ZiZGfxOrAKEtsGOEp_J0YHpzwAZcoIPRz72rlJEMQtSKmGILU2wM_YorYeR_qomE3_D7T-XConz", payload)
+        admin.messaging().sendToDevice(receiverUser.fcmID, payload)
             .then((response) => {
                 console.log("Successfully sent message:", response);
             })

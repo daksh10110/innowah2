@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
 });
 
 // Login route
-router.post("/login", (req, res, next) => {
+router.post("/login", (req, res, next) => {    
     passport.authenticate("local", { session: false }, (err, person) => {
         if (err || !person) {
             return res.status(401).json({ message: "Authentication failed" });
