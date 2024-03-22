@@ -83,6 +83,7 @@ router.get("/:personId/chats/:otherPersonId", async (req, res) => {
 // Route to send a chat from one person to another
 router.post("/send", async (req, res) => {
     const { senderId, receiverId, message } = req.body;
+    console.log(req.body);
 
     let senderUser = await Person.findByPk(senderId, {
         attributes: ["name"],
@@ -114,13 +115,15 @@ router.post("/send", async (req, res) => {
             },
         };
 
-        admin.messaging().sendToDevice(receiverUser.fcmID, payload)
-            .then((response) => {
-                console.log("Successfully sent message:", response);
-            })
-            .catch((error) => {
-                console.error("Error sending message:", error);
-            });
+        if (receiverUser.fcmID) {
+            admin.messaging().sendToDevice(receiverUser.fcmID, payload)
+                .then((response) => {
+                    console.log("Successfully sent message:", response);
+                })
+                .catch((error) => {
+                    console.error("Error sending message:", error);
+                });
+        }
 
         return res.json({ sender, receiver, chat });
     } catch (error) {

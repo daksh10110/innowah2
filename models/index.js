@@ -4,20 +4,6 @@ const Chat = require("./Chat");
 const Investment = require("./Investment");
 const InvestmentRelationship = require("./InvestmentRelationship");
 
-// Define associations
-Person.belongsToMany(Person, {
-  as: "Sender",
-  through: "Chats", // This will create a join table named 'Chats'
-  foreignKey: "senderId",
-  otherKey: "receiverId",
-});
-
-Person.belongsToMany(Person, {
-  as: "Receiver",
-  through: "Chats", // This will create a join table named 'Chats'
-  foreignKey: "receiverId",
-  otherKey: "senderId",
-});
 
 Chat.belongsTo(Person, { as: "Sender", foreignKey: "senderId" });
 Chat.belongsTo(Person, { as: "Receiver", foreignKey: "receiverId" });
@@ -26,9 +12,9 @@ Chat.belongsTo(Person, { as: "Receiver", foreignKey: "receiverId" });
 sequelize.sync({ force: false });
 
 module.exports = {
-  sequelize,
-  Person,
-  Chat,
-  Investment,
-  InvestmentRelationship,
+    sequelize,
+    Person,
+    Chat,
+    Investment,
+    InvestmentRelationship,
 };

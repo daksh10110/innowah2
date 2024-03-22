@@ -17,8 +17,8 @@ Chat.init(
         receiverId: {
             type: DataTypes.UUID,
             allowNull: false,
-            references: { model: "people", key: "id" }, // Adjust based on your actual model and key names
-            field: "receiver_id" // Explicitly specifying the database field name
+            references: { model: "people", key: "id" },
+            field: "receiver_id"
         },
         senderId: {
             type: DataTypes.UUID,

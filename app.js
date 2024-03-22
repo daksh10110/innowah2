@@ -28,7 +28,7 @@ app.use("/investment", investmentController);
 app.use("/", getController);
 
 app.use(function (req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 module.exports = app;
